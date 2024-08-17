@@ -4,3 +4,4 @@ python-jose
 fastapi-jwt-auth
 asyncpg 
 databases
+requests
