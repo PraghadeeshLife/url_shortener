@@ -56,7 +56,7 @@ async def shutdown():
     await database.disconnect()
 
 
-@app.post("/url/shorten", response_class=RedirectResponse)
+@app.post("/url/shorten")
 async def shorten_url(request: URLRequest, user_id: str = Depends(verify_token)):   
     print("Short URL")
     short_code = generate_short_code()
