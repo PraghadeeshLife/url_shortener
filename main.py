@@ -21,7 +21,8 @@ def shorten_url(request: URLRequest):
     while short_code in url_db:
         short_code = generate_short_code()
     url_db[short_code] = request.url
-    return {"short_url": f"https://yourdomain.com/{short_code}"}
+    return {"short_url": f"https://url-shortener-2h7i.onrender.com/{short_code}"}
+
 
 @app.get("/{short_code}")
 def redirect_url(short_code: str):
