@@ -8,6 +8,7 @@ import os
 import string
 import random
 import requests
+import asyncpg
 
 
 # FastAPI app initialization
@@ -16,7 +17,7 @@ app = FastAPI()
 # Database connection
 render_url = os.getenv("RENDER_URL")
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@host:port/dbname")
-database = Database(DATABASE_URL, connect_args={"statement_cache_size": 0})
+database = Database(DATABASE_URL)
 
 # Supabase JWT secret key
 JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET", "your-supabase-jwt-secret")
@@ -26,6 +27,11 @@ IPINFO_TOKEN = os.getenv("IPINFO_TOKEN", "your_ipinfo_token")
 # Pydantic models
 class URLRequest(BaseModel):
     url: str
+
+
+async def connect_db():
+    # Create a connection and disable the statement cache
+    return await asyncpg.connect(DATABASE_URL, statement_cache_size=0)
 
 
 # Helper function to generate short codes
@@ -48,7 +54,9 @@ async def verify_token(authorization: str = Header(...)):
 
 @app.on_event("startup")
 async def startup():
-    await database.connect()
+    # Connect to the database using the custom connection function
+    connection = await connect_db()
+    await database.connect(connection)
 
 
 @app.on_event("shutdown")
