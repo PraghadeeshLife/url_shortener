@@ -3,10 +3,12 @@ from pydantic import BaseModel
 from databases import Database
 from jose import JWTError, jwt
 from fastapi.responses import RedirectResponse
+from user_agents import parse
 import os
 import string
 import random
 import requests
+
 
 # FastAPI app initialization
 app = FastAPI()
@@ -112,6 +114,16 @@ async def redirect_url(short_code: str, request: Request):
     # Fetch IP info
     ip_info = await fetch_ipinfo(ip_address)
 
+    # Parse user-agent to get browser and device info
+    user_agent_string = request.headers.get("user-agent")
+    user_agent = parse(user_agent_string)
+
+    browser = user_agent.browser.family
+    browser_version = user_agent.browser.version_string
+    os = user_agent.os.family
+    os_version = user_agent.os.version_string
+    device = user_agent.device.family
+
     # Increment click count and update last accessed timestamp
     update_query = """
     UPDATE urls 
@@ -122,8 +134,14 @@ async def redirect_url(short_code: str, request: Request):
 
     # Log the access to the url_analytics table
     analytics_query = """
-    INSERT INTO url_analytics (url_id, ip_address, city, region, country, org, loc, postal, timezone) 
-    VALUES (:url_id, :ip_address, :city, :region, :country, :org, :loc, :postal, :timezone)
+    INSERT INTO url_analytics (
+        url_id, ip_address, city, region, country, org, loc, postal, timezone,
+        browser, browser_version, os, os_version, device
+    ) 
+    VALUES (
+        :url_id, :ip_address, :city, :region, :country, :org, :loc, :postal, :timezone,
+        :browser, :browser_version, :os, :os_version, :device
+    )
     """
     await database.execute(analytics_query, {
         "url_id": url_id,
@@ -135,6 +153,11 @@ async def redirect_url(short_code: str, request: Request):
         "loc": ip_info.get("loc"),
         "postal": ip_info.get("postal"),
         "timezone": ip_info.get("timezone"),
+        "browser": browser,
+        "browser_version": browser_version,
+        "os": os,
+        "os_version": os_version,
+        "device": device
     })
 
     # Redirect to the original URL

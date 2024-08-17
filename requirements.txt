@@ -5,3 +5,6 @@ fastapi-jwt-auth
 asyncpg 
 databases
 requests
+pyyaml 
+ua-parser 
+user-agents
