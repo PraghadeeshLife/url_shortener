@@ -1,2 +1,6 @@
 fastapi
 uvicorn
+python-jose 
+fastapi-jwt-auth
+asyncpg 
+databases
