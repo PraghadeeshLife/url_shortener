@@ -54,19 +54,24 @@ async def shutdown():
     await database.disconnect()
 
 
-@app.post("/shorten", response_class=RedirectResponse)
-async def shorten_url(request: URLRequest, user_id: str = Depends(verify_token)):
+@app.post("/url/shorten", response_class=RedirectResponse)
+async def shorten_url(request: URLRequest, user_id: str = Depends(verify_token)):   
+    print("Short URL")
     short_code = generate_short_code()
 
     query = "SELECT COUNT(*) FROM urls WHERE short_code = :short_code"
     while await database.fetch_val(query, {"short_code": short_code}) > 0:
         short_code = generate_short_code()
 
+    print("Checking if the URL already exists")
+
     query = "INSERT INTO urls (short_code, url, user_id) VALUES (:short_code, :url, :user_id)"
     await database.execute(query, {"short_code": short_code, "url": request.url, "user_id": user_id})
 
+    print("Shortened URL is inserted")
+
     # Redirect to the shortened URL immediately
-    return RedirectResponse(url=f"{render_url}/{short_code}")
+    return {"short_url": f"{render_url}/{short_code}"}
 
 
 
