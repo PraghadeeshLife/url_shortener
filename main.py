@@ -27,10 +27,12 @@ def generate_short_code(length: int = 6) -> str:
 
 # JWT token verification
 async def verify_token(authorization: str = Header(...)):
+    print(authorization)
     token = authorization.split(" ")[1]
     try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"], options={"verify_aud": False})
         user_id: str = payload.get("sub")
+        print(user_id)
         if user_id is None:
             raise HTTPException(status_code=401, detail="Invalid user credentials")
         return user_id
