@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, Header, Request
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from databases import Database
 from jose import JWTError, jwt
@@ -12,6 +13,10 @@ import requests
 
 # FastAPI app initialization
 app = FastAPI()
+
+# Configure CORS
+orig_stdout = ["http://localhost:3000", "https://your-frontend-domain.com"]  # Update with your allowed origins
+
 
 # Database connection
 render_url = os.getenv("RENDER_URL")
@@ -27,6 +32,17 @@ IPINFO_TOKEN = os.getenv("IPINFO_TOKEN", "your_ipinfo_token")
 class URLRequest(BaseModel):
     url: str
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=orig_stdout,  # List of origins that are allowed to make requests
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all HTTP methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allows all headers
+)
+
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
 
 # Helper function to generate short codes
 def generate_short_code(length: int = 6) -> str:
