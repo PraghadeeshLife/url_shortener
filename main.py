@@ -58,7 +58,7 @@ async def shorten_url(request: URLRequest, user_id: str = Depends(verify_token))
     query = "INSERT INTO urls (short_code, url, user_id) VALUES (:short_code, :url, :user_id)"
     await database.execute(query, {"short_code": short_code, "url": request.url, "user_id": user_id})
 
-    return {"short_url": f"https://yourapp.onrender.com/{short_code}"}
+    return {"short_url": f"{render_url}/{short_code}"}
 
 @app.get("/{short_code}")
 async def redirect_url(short_code: str):
