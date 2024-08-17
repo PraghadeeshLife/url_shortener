@@ -16,7 +16,7 @@ app = FastAPI()
 # Database connection
 render_url = os.getenv("RENDER_URL")
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@host:port/dbname")
-database = Database(DATABASE_URL)
+database = Database(DATABASE_URL, connect_args={"statement_cache_size": 0})
 
 # Supabase JWT secret key
 JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET", "your-supabase-jwt-secret")
