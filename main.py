@@ -15,7 +15,7 @@ import requests
 app = FastAPI()
 
 # Configure CORS
-orig_stdout = ["http://localhost:3000", "https://urls-shortener-ui-pragha.vercel.app/"]  # Update with your allowed origins
+orig_stdout = ["http://localhost:3000", "https://urls-shortener-ui-pragha.vercel.app"]  # Update with your allowed origins
 
 
 # Database connection
